@@ -1,10 +1,9 @@
 version: 1.0
 
-token: "xx"
+token: "your token"
 queryUrl: "http://127.0.0.1:3535"
 logLevel: "dev"
 
 ipfs:
-  ipfsCmd: "./ipfs-mac"
+  ipfsCmd: "./ipfs"
   ipfsDataRoot: "~/.ipfs"
-
