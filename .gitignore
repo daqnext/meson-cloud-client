@@ -15,3 +15,4 @@
 # vendor/
 .idea
 ipfs
+.DS_Store
