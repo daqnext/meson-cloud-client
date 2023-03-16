@@ -65,7 +65,6 @@ func main() {
 }
 
 func parserIpfsCmd(path string) (string, error) {
-
     relpath, exist, err := utils.RelPathAndCheck(BINARY_DIR, path)
     if err != nil {
         logger.L.Panicw("Failed to read ipfs cmd", "err", err.Error())

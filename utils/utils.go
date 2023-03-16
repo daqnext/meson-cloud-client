@@ -1,9 +1,10 @@
 package utils
 
 import (
-	"daqnext/meson-cloud-client/logger"
 	"os"
 	"path/filepath"
+
+	"daqnext/meson-cloud-client/logger"
 )
 
 func RelPathAndCheck(DIR_PREFIX, path string) (string, bool, error) {
