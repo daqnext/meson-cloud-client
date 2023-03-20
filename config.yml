@@ -1,7 +1,7 @@
 version: 1.0
 
 token: "your token"
-queryUrl: "http://127.0.0.1:3535"
+queryUrl: "https://apicloud.meson.network/client"
 logLevel: "dev"
 
 ipfs:
