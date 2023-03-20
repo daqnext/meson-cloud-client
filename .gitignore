@@ -15,4 +15,5 @@
 # vendor/
 .idea
 ipfs
+ipfs-mac
 .DS_Store
