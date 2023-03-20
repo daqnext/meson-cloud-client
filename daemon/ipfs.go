@@ -59,6 +59,7 @@ func (i *IpfsDaemon) Start(ctx context.Context) error {
             logger.L.Infow("Receive Kill Signal", "pid", runNode.Process.Pid)
             runNode.Process.Kill()
         case err := <-er:
+            runNode.Process.Kill()
             logger.L.Panicw("Runtime error", err.Error())
         }
     }()
