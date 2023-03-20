@@ -34,7 +34,7 @@ func (a *apiMgr) Run() {
 
 func (a *apiMgr) queryPeers() {
     params := "token=" + a.token
-    url := fmt.Sprintf("%s/query?%s", a.url, params)
+    url := fmt.Sprintf("%s/cloud?%s", a.url, params)
 
     var peerList []string
     if err := reqGET(a.httpCli, url, &peerList); err != nil {
