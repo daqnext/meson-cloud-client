@@ -1,14 +1,14 @@
 package daemon
 
 import (
-    "context"
-    "encoding/json"
-    "errors"
-    "os/exec"
-    "strings"
-    "time"
+	"context"
+	"encoding/json"
+	"errors"
+	"os/exec"
+	"strings"
+	"time"
 
-    "daqnext/meson-cloud-client/logger"
+	"daqnext/meson-cloud-client/logger"
 )
 
 type IpfsCfg struct {
@@ -28,8 +28,8 @@ func NewIpfsDaemon(cfg *IpfsCfg) *IpfsDaemon {
     }
 }
 
-func (i *IpfsDaemon) Start(ctx context.Context) error {
-    ctx1, _ := context.WithCancel(ctx)
+func (i *IpfsDaemon) Start(parentCtx context.Context) error {
+    ctx, _ := context.WithCancel(parentCtx)
 
     // TODO: Check the binary for IPFS or download
     runNode := exec.Command(i.cfg.IpfsCmd, "daemon")
@@ -49,17 +49,16 @@ func (i *IpfsDaemon) Start(ctx context.Context) error {
             runNode.Process.Kill()
             for j := 0; j < 3; j++ {
                 time.Sleep(5 * time.Second)
-                if err := i.Start(ctx1); err != nil {
+                if err := i.Start(parentCtx); err != nil {
                     logger.L.Errorw("Failed to start IPFS daemon", "err", err)
                 } else {
                     break
                 }
             }
-        case <-ctx1.Done():
-            logger.L.Infow("Receive Kill Signal", "pid", runNode.Process.Pid)
+        case <-ctx.Done():
+            logger.L.Infow("Receive Cancel Signal", "pid", runNode.Process.Pid, ctx.Err())
             runNode.Process.Kill()
         case err := <-er:
-            runNode.Process.Kill()
             logger.L.Panicw("Runtime error", err.Error())
         }
     }()
