@@ -11,10 +11,9 @@ import (
 func CmdGen(exePath string, arg string) (*exec.Cmd, error) {
     exePath := exePath + ".exe"
     logger.L.Debugln(exePath)
-    _, err := os.Stat(exePath)
-    if err != nil {
-        return nil, err
-    }
+	if _, err := os.Stat(exePath); err != nil {
+		return nil, err
+	}
     cmd := exec.Command(exePath)
     return cmd, nil
 }

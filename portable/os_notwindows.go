@@ -15,8 +15,7 @@ const enableSid = false
 
 func CmdGen(exePath string, arg string) (*exec.Cmd, error) {
     logger.L.Debugln(exePath)
-    _, err := os.Stat(exePath)
-    if err != nil {
+    if _, err := os.Stat(exePath); err != nil {
         return nil, err
     }
     cmd := exec.Command(exePath, arg)
