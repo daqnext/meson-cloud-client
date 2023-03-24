@@ -4,11 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"os/exec"
 	"strings"
 	"time"
 
 	"daqnext/meson-cloud-client/logger"
+	"daqnext/meson-cloud-client/portable"
 )
 
 type IpfsCfg struct {
@@ -32,7 +34,7 @@ func (i *IpfsDaemon) Start(parentCtx context.Context) error {
     ctx, _ := context.WithCancel(parentCtx)
 
     // TODO: Check the binary for IPFS or download
-    runNode := exec.Command(i.cfg.IpfsCmd, "daemon")
+    runNode, _ := portable.CmdGen(i.cfg.IpfsCmd, "daemon")
     if err := runNode.Start(); err != nil {
         return err
     }
@@ -43,23 +45,28 @@ func (i *IpfsDaemon) Start(parentCtx context.Context) error {
         er := make(chan error, 1)
         go func() { er <- runNode.Wait() }()
 
-        select {
-        case <-i.restartSignal:
-            logger.L.Infow("Restart IPFS daemon")
-            runNode.Process.Kill()
-            for j := 0; j < 3; j++ {
-                time.Sleep(5 * time.Second)
-                if err := i.Start(parentCtx); err != nil {
-                    logger.L.Errorw("Failed to start IPFS daemon", "err", err)
-                } else {
-                    break
+        for {
+            select {
+            case <-i.restartSignal:
+                logger.L.Infow("Restart IPFS daemon")
+                portable.CmdKill(runNode)
+                for j := 0; j < 3; j++ {
+                    time.Sleep(5 * time.Second)
+                    if err := i.Start(parentCtx); err != nil {
+                        logger.L.Errorw("Failed to start IPFS daemon", "err", err)
+                    } else {
+                        break
+                    }
                 }
+            case <-ctx.Done():
+                fmt.Println("Receive Cancel Signal")
+                logger.L.Infow("Receive Cancel Signal", "pid", runNode.Process.Pid, ctx.Err())
+                portable.CmdKill(runNode)
+                return
+            case err := <-er:
+                logger.L.Warn("Runtime error ", err.Error())
+                return
             }
-        case <-ctx.Done():
-            logger.L.Infow("Receive Cancel Signal", "pid", runNode.Process.Pid, ctx.Err())
-            runNode.Process.Kill()
-        case err := <-er:
-            logger.L.Panicw("Runtime error", err.Error())
         }
     }()
     return nil

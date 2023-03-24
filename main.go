@@ -1,17 +1,18 @@
 package main
 
 import (
-    "context"
-    "log"
-    "os"
-    "path/filepath"
+	"context"
+	"log"
+	"os"
+	"path/filepath"
 
-    "daqnext/meson-cloud-client/api"
-    "daqnext/meson-cloud-client/daemon"
-    "daqnext/meson-cloud-client/logger"
-    "daqnext/meson-cloud-client/utils"
+	"daqnext/meson-cloud-client/api"
+	"daqnext/meson-cloud-client/daemon"
+	"daqnext/meson-cloud-client/logger"
+	"daqnext/meson-cloud-client/portable"
+	"daqnext/meson-cloud-client/utils"
 
-    "github.com/spf13/viper"
+	"github.com/spf13/viper"
 )
 
 var BINARY_DIR string
@@ -50,18 +51,24 @@ func main() {
     ipfsCfg.IpfsCmd, err = parserIpfsCmd(ipfsCfg.IpfsCmd)
     logger.L.Debugln("cmd", ipfsCfg.IpfsCmd, "dataRoot", ipfsCfg.IpfsDataRoot, "queryUrl", queryUrl, "token", token)
 
-    ctx, cancelFunc := context.WithCancel(context.Background())
-    defer cancelFunc()
+    mainCtx, mainCancel := context.WithCancel(context.Background())
+    defer mainCancel()
 
     // Register & Run Daemon(s)
     ipfsDaemon := daemon.NewIpfsDaemon(&ipfsCfg)
-    if err := ipfsDaemon.Start(ctx); err != nil {
+    if err := ipfsDaemon.Start(mainCtx); err != nil {
         logger.L.Panicw("Failed to start the IPFS node", "err", err.Error())
     }
 
+    GracefulExit := func (s os.Signal) {
+        logger.L.Debugln("Program Exit...", s)
+        mainCancel()
+    }
+    portable.SysSingalFunc(GracefulExit)
+
     // Api Jobs
     apiMgr := api.NewApiMgr(queryUrl, token, ipfsDaemon)
-    apiMgr.Run()
+    apiMgr.Run(mainCtx)
 }
 
 func parserIpfsCmd(path string) (string, error) {
