@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"os/exec"
 	"strings"
 	"time"
@@ -59,7 +58,6 @@ func (i *IpfsDaemon) Start(parentCtx context.Context) error {
                     }
                 }
             case <-ctx.Done():
-                fmt.Println("Receive Cancel Signal")
                 logger.L.Infow("Receive Cancel Signal", "pid", runNode.Process.Pid, ctx.Err())
                 portable.CmdKill(runNode)
                 return

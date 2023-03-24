@@ -1,29 +1,29 @@
 package portable
 
 import (
-	"os"
-	"os/exec"
-	"strconv"
+    "os"
+    "os/exec"
+    "strconv"
 
-	"daqnext/meson-cloud-client/logger"
+    "daqnext/meson-cloud-client/logger"
 )
 
 func CmdGen(exePath string, arg string) (*exec.Cmd, error) {
-	exePath := exePath + ".exe"
-	logger.L.Debugln(exePath)
-	_, err := os.Stat(exePath)
-	if err != nil {
-		return nil, err
-	}
-	cmd := exec.Command(exePath)
-	return cmd, nil
+    exePath := exePath + ".exe"
+    logger.L.Debugln(exePath)
+    _, err := os.Stat(exePath)
+    if err != nil {
+        return nil, err
+    }
+    cmd := exec.Command(exePath)
+    return cmd, nil
 }
 
 // kill the app pid with his children pid
 func CmdKill(cmd *exec.Cmd) error {
-	if cmd != nil {
-		cmd := exec.Command("taskkill.exe", "/PID", strconv.Itoa(cmd.Process.Pid), "/T", "/F")
-		return cmd.Run()
-	}
-	return nil
+    if cmd != nil {
+        cmd := exec.Command("taskkill.exe", "/PID", strconv.Itoa(cmd.Process.Pid), "/T", "/F")
+        return cmd.Run()
+    }
+    return nil
 }

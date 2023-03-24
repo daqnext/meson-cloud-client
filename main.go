@@ -1,18 +1,18 @@
 package main
 
 import (
-	"context"
-	"log"
-	"os"
-	"path/filepath"
+    "context"
+    "log"
+    "os"
+    "path/filepath"
 
-	"daqnext/meson-cloud-client/api"
-	"daqnext/meson-cloud-client/daemon"
-	"daqnext/meson-cloud-client/logger"
-	"daqnext/meson-cloud-client/portable"
-	"daqnext/meson-cloud-client/utils"
+    "daqnext/meson-cloud-client/api"
+    "daqnext/meson-cloud-client/daemon"
+    "daqnext/meson-cloud-client/logger"
+    "daqnext/meson-cloud-client/portable"
+    "daqnext/meson-cloud-client/utils"
 
-	"github.com/spf13/viper"
+    "github.com/spf13/viper"
 )
 
 var BINARY_DIR string
