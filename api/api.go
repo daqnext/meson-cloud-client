@@ -35,6 +35,7 @@ func (a *apiMgr) Run() {
         select {
         case err := <-a.ipfsDaemon.Done():
             logger.L.Warn("Runtime error ", err.Error())
+            return
         }
     }
 }
