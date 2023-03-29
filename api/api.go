@@ -1,13 +1,13 @@
 package api
 
 import (
-	"fmt"
-	"net/http"
-	"os/exec"
-	"time"
+    "fmt"
+    "net/http"
+    "os/exec"
+    "time"
 
-	"daqnext/meson-cloud-client/daemon"
-	"daqnext/meson-cloud-client/logger"
+    "daqnext/meson-cloud-client/daemon"
+    "daqnext/meson-cloud-client/logger"
 )
 
 type apiMgr struct {
