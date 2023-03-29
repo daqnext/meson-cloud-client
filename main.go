@@ -68,7 +68,7 @@ func main() {
 
     // Api Jobs
     apiMgr := api.NewApiMgr(queryUrl, token, ipfsDaemon)
-    apiMgr.Run(mainCtx)
+    apiMgr.Run()
 }
 
 func parserIpfsCmd(path string) (string, error) {

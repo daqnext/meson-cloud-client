@@ -1,7 +1,6 @@
 package api
 
 import (
-    "context"
     "fmt"
     "net/http"
     "time"
@@ -28,9 +27,16 @@ func NewApiMgr(url, token string, ipfsDaemon *daemon.IpfsDaemon) *apiMgr {
     }
 }
 
-func (a *apiMgr) Run(ctx context.Context) {
-    go a.tickerRun(ctx, time.NewTicker(30*time.Second), a.queryPeers)
-    a.tickerRun(ctx, time.NewTicker(30*time.Second), a.updatePeersConfig)
+func (a *apiMgr) Run() {
+    go a.tickerRun(time.NewTicker(30*time.Second), a.queryPeers)
+    go a.tickerRun(time.NewTicker(30*time.Second), a.updatePeersConfig)
+
+    for {
+        select {
+        case err := <-a.ipfsDaemon.Done():
+            logger.L.Warn("Runtime error ", err.Error())
+        }
+    }
 }
 
 func (a *apiMgr) queryPeers() {
@@ -76,13 +82,11 @@ func (a *apiMgr) updatePeersConfig() {
     }
 }
 
-func (a *apiMgr) tickerRun(ctx context.Context, t *time.Ticker, f func()) {
+func (a *apiMgr) tickerRun(t *time.Ticker, f func()) {
     for {
         select {
         case <-t.C:
             f()
-        case <-ctx.Done():
-            return
         }
     }
 }

@@ -20,6 +20,11 @@ type IpfsCfg struct {
 type IpfsDaemon struct {
     cfg           *IpfsCfg
     restartSignal chan bool
+    quitChan chan error
+}
+
+func (i *IpfsDaemon) Done() chan error {
+    return i.quitChan
 }
 
 func NewIpfsDaemon(cfg *IpfsCfg) *IpfsDaemon {
@@ -38,10 +43,12 @@ func (i *IpfsDaemon) Start(parentCtx context.Context) error {
         return err
     }
 
+    er := make(chan error, 1)
+    i.quitChan = er
+
     logger.L.Infow("IPFS starts", "PID", runNode.Process.Pid)
 
     go func() {
-        er := make(chan error, 1)
         go func() { er <- runNode.Wait() }()
 
         for {
@@ -60,9 +67,6 @@ func (i *IpfsDaemon) Start(parentCtx context.Context) error {
             case <-ctx.Done():
                 logger.L.Infow("Receive Cancel Signal", "pid", runNode.Process.Pid, ctx.Err())
                 portable.CmdKill(runNode)
-                return
-            case err := <-er:
-                logger.L.Warn("Runtime error ", err.Error())
                 return
             }
         }
