@@ -1,6 +1,7 @@
 package daemon
 
 import (
+    "bytes"
     "context"
     "encoding/json"
     "errors"
@@ -20,6 +21,7 @@ type IpfsCfg struct {
 type IpfsDaemon struct {
     cfg           *IpfsCfg
     restartSignal chan bool
+    isRestart bool
     quitChan chan error
 }
 
@@ -34,11 +36,33 @@ func NewIpfsDaemon(cfg *IpfsCfg) *IpfsDaemon {
     }
 }
 
+func (i *IpfsDaemon) Init() error {
+    env := ""
+    if i.cfg.IpfsDataRoot != "" {
+        env = envIpfsPath + "=" + i.cfg.IpfsDataRoot
+    }
+    runNode, _ := portable.CmdGen(i.cfg.IpfsCmd, "init", env)
+
+    var outb bytes.Buffer
+    runNode.Stdout = &outb
+    runNode.Stderr = &outb
+    if err := runNode.Run(); err != nil {
+        return err
+    }
+
+    logger.L.Infow(outb.String())
+    return nil
+}
+
 func (i *IpfsDaemon) Start(parentCtx context.Context) error {
     ctx, _ := context.WithCancel(parentCtx)
 
+    env := ""
+    if i.cfg.IpfsDataRoot != "" {
+        env = envIpfsPath + "=" + i.cfg.IpfsDataRoot
+    }
     // TODO: Check the binary for IPFS or download
-    runNode, _ := portable.CmdGen(i.cfg.IpfsCmd, "daemon")
+    runNode, _ := portable.CmdGen(i.cfg.IpfsCmd, "daemon", env)
     if err := runNode.Start(); err != nil {
         return err
     }
@@ -49,12 +73,21 @@ func (i *IpfsDaemon) Start(parentCtx context.Context) error {
     logger.L.Infow("IPFS starts", "PID", runNode.Process.Pid)
 
     go func() {
-        go func() { er <- runNode.Wait() }()
+        go func() {
+            proc_er := runNode.Wait()
+            if i.isRestart {
+                i.isRestart = false
+                logger.L.Debugw("Daemon restart")
+            } else {
+                er <- proc_er
+            }
+        }()
 
         for {
             select {
             case <-i.restartSignal:
                 logger.L.Infow("Restart IPFS daemon")
+                i.isRestart = true
                 portable.CmdKill(runNode)
                 for j := 0; j < 3; j++ {
                     time.Sleep(5 * time.Second)

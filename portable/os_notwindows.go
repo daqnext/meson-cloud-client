@@ -13,13 +13,17 @@ import (
 
 const enableSid = false
 
-func CmdGen(exePath string, arg string) (*exec.Cmd, error) {
+func CmdGen(exePath string, arg string, env string) (*exec.Cmd, error) {
     logger.L.Debugln(exePath)
     if _, err := os.Stat(exePath); err != nil {
         return nil, err
     }
     cmd := exec.Command(exePath, arg)
-    if (enableSid) {
+    if env != "" {
+        newEnv := append(os.Environ(), env)
+        cmd.Env = newEnv
+    }
+    if enableSid {
         cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
     }
     return cmd, nil

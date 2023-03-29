@@ -8,13 +8,17 @@ import (
     "daqnext/meson-cloud-client/logger"
 )
 
-func CmdGen(exePath string, arg string) (*exec.Cmd, error) {
+func CmdGen(exePath string, arg string, env string) (*exec.Cmd, error) {
     exePath := exePath + ".exe"
     logger.L.Debugln(exePath)
-	if _, err := os.Stat(exePath); err != nil {
-		return nil, err
-	}
-    cmd := exec.Command(exePath)
+    if _, err := os.Stat(exePath); err != nil {
+        return nil, err
+    }
+    cmd := exec.Command(exePath, arg)
+    if env != "" {
+        newEnv := append(os.Environ(), env)
+        cmd.Env = newEnv
+    }
     return cmd, nil
 }
 
