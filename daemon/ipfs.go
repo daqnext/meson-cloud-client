@@ -1,15 +1,16 @@
 package daemon
 
 import (
-	"context"
-	"encoding/json"
-	"errors"
-	"os/exec"
-	"strings"
-	"time"
+    "bytes"
+    "context"
+    "encoding/json"
+    "errors"
+    "os/exec"
+    "strings"
+    "time"
 
-	"daqnext/meson-cloud-client/logger"
-	"daqnext/meson-cloud-client/portable"
+    "daqnext/meson-cloud-client/logger"
+    "daqnext/meson-cloud-client/portable"
 )
 
 type IpfsCfg struct {
@@ -35,11 +36,33 @@ func NewIpfsDaemon(cfg *IpfsCfg) *IpfsDaemon {
     }
 }
 
+func (i *IpfsDaemon) Init() error {
+    env := ""
+    if i.cfg.IpfsDataRoot != "" {
+        env = envIpfsPath + "=" + i.cfg.IpfsDataRoot
+    }
+    runNode, _ := portable.CmdGen(i.cfg.IpfsCmd, "init", env)
+
+    var outb bytes.Buffer
+    runNode.Stdout = &outb
+    runNode.Stderr = &outb
+    if err := runNode.Run(); err != nil {
+        return err
+    }
+
+    logger.L.Infow(outb.String())
+    return nil
+}
+
 func (i *IpfsDaemon) Start(parentCtx context.Context) error {
     ctx, _ := context.WithCancel(parentCtx)
 
+    env := ""
+    if i.cfg.IpfsDataRoot != "" {
+        env = envIpfsPath + "=" + i.cfg.IpfsDataRoot
+    }
     // TODO: Check the binary for IPFS or download
-    runNode, _ := portable.CmdGen(i.cfg.IpfsCmd, "daemon")
+    runNode, _ := portable.CmdGen(i.cfg.IpfsCmd, "daemon", env)
     if err := runNode.Start(); err != nil {
         return err
     }

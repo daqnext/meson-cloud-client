@@ -49,13 +49,28 @@ func main() {
     defer logger.L.Sync()
 
     ipfsCfg.IpfsCmd, err = parserIpfsCmd(ipfsCfg.IpfsCmd)
+    ipfsCfg.IpfsDataRoot, err = daemon.IpfsDir(ipfsCfg.IpfsDataRoot)
+
     logger.L.Debugln("cmd", ipfsCfg.IpfsCmd, "dataRoot", ipfsCfg.IpfsDataRoot, "queryUrl", queryUrl, "token", token)
 
     mainCtx, mainCancel := context.WithCancel(context.Background())
     defer mainCancel()
 
-    // Register & Run Daemon(s)
+    // Daemon(s) Register
     ipfsDaemon := daemon.NewIpfsDaemon(&ipfsCfg)
+
+    // Daemon(s) Init
+    if exists, err := utils.PathExist(ipfsCfg.IpfsDataRoot); !exists || err != nil {
+        logger.L.Debugln("ipfs Repo Init")
+
+        if err := ipfsDaemon.Init(); err != nil {
+            logger.L.Panicw("Failed to start the IPFS node", "err", err.Error())
+        }
+    } else {
+        logger.L.Debugln("ipfs Repo Found")
+    }
+
+    // Daemon(s) Run
     if err := ipfsDaemon.Start(mainCtx); err != nil {
         logger.L.Panicw("Failed to start the IPFS node", "err", err.Error())
     }

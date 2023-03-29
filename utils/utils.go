@@ -11,7 +11,7 @@ func RelPathAndCheck(DIR_PREFIX, path string) (string, bool, error) {
 	//check abs path or relative path
 	is_abs := filepath.IsAbs(path)
 	if is_abs {
-		exist, err := pathExist(path)
+		exist, err := PathExist(path)
 		if err != nil {
 			return "", false, err
 		}
@@ -47,14 +47,14 @@ func toRelPath(path string) (string, bool, error) {
 	if err != nil {
 		return "", false, err
 	}
-	exist, err := pathExist(path)
+	exist, err := PathExist(path)
 	if err != nil {
 		return "", false, err
 	}
 	return path, exist, nil
 }
 
-func pathExist(path string) (bool, error) {
+func PathExist(path string) (bool, error) {
 	_, err := os.Stat(path)
 	if err == nil {
 		return true, nil
