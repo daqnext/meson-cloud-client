@@ -1,15 +1,15 @@
 package daemon
 
 import (
-    "context"
-    "encoding/json"
-    "errors"
-    "os/exec"
-    "strings"
-    "time"
+	"context"
+	"encoding/json"
+	"errors"
+	"os/exec"
+	"strings"
+	"time"
 
-    "daqnext/meson-cloud-client/logger"
-    "daqnext/meson-cloud-client/portable"
+	"daqnext/meson-cloud-client/logger"
+	"daqnext/meson-cloud-client/portable"
 )
 
 type IpfsCfg struct {
@@ -20,6 +20,7 @@ type IpfsCfg struct {
 type IpfsDaemon struct {
     cfg           *IpfsCfg
     restartSignal chan bool
+    isRestart bool
     quitChan chan error
 }
 
@@ -49,12 +50,21 @@ func (i *IpfsDaemon) Start(parentCtx context.Context) error {
     logger.L.Infow("IPFS starts", "PID", runNode.Process.Pid)
 
     go func() {
-        go func() { er <- runNode.Wait() }()
+        go func() {
+            proc_er := runNode.Wait()
+            if i.isRestart {
+                i.isRestart = false
+                logger.L.Debugw("Daemon restart")
+            } else {
+                er <- proc_er
+            }
+        }()
 
         for {
             select {
             case <-i.restartSignal:
                 logger.L.Infow("Restart IPFS daemon")
+                i.isRestart = true
                 portable.CmdKill(runNode)
                 for j := 0; j < 3; j++ {
                     time.Sleep(5 * time.Second)

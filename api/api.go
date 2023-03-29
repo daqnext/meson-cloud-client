@@ -1,12 +1,13 @@
 package api
 
 import (
-    "fmt"
-    "net/http"
-    "time"
+	"fmt"
+	"net/http"
+	"os/exec"
+	"time"
 
-    "daqnext/meson-cloud-client/daemon"
-    "daqnext/meson-cloud-client/logger"
+	"daqnext/meson-cloud-client/daemon"
+	"daqnext/meson-cloud-client/logger"
 )
 
 type apiMgr struct {
@@ -34,7 +35,11 @@ func (a *apiMgr) Run() {
     for {
         select {
         case err := <-a.ipfsDaemon.Done():
-            logger.L.Warn("Runtime error ", err.Error())
+            if exiterr, ok := err.(*exec.ExitError); ok {
+                logger.L.Infow("Daemon shutdown. Code: ", exiterr.ExitCode())
+            } else {
+                logger.L.Warn("Daemon shutdown. Err: ", err.Error())
+            }
             return
         }
     }
