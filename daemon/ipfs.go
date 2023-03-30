@@ -33,6 +33,7 @@ func NewIpfsDaemon(cfg *IpfsCfg) *IpfsDaemon {
     return &IpfsDaemon{
         cfg:           cfg,
         restartSignal: make(chan bool, 1),
+        quitChan: make(chan error, 1),
     }
 }
 
@@ -67,9 +68,6 @@ func (i *IpfsDaemon) Start(parentCtx context.Context) error {
         return err
     }
 
-    er := make(chan error, 1)
-    i.quitChan = er
-
     logger.L.Infow("IPFS starts", "PID", runNode.Process.Pid)
 
     go func() {
@@ -79,7 +77,7 @@ func (i *IpfsDaemon) Start(parentCtx context.Context) error {
                 i.isRestart = false
                 logger.L.Debugw("Daemon restart")
             } else {
-                er <- proc_er
+                i.quitChan <- proc_er
             }
         }()
 
