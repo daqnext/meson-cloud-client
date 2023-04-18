@@ -1,9 +1,7 @@
-version: 1.0
-
+version: "1.0"
 token: "your token"
-queryUrl: "https://apicloud.meson.network/client"
-logLevel: "dev"
-
+queryUrl: https://apicloud.meson.network/client
+logLevel: dev
 ipfs:
-  ipfsCmd: "./ipfs"
-  ipfsDataRoot: "~/.ipfs"
+  ipfsCmd: ./ipfs
+  ipfsDataRoot: ~/.ipfs
