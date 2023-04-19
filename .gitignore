@@ -17,3 +17,6 @@
 ipfs
 ipfs-mac
 .DS_Store
+.vscode
+config.yml
+

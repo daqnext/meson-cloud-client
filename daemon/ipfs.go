@@ -14,8 +14,8 @@ import (
 )
 
 type IpfsCfg struct {
-    IpfsCmd      string
-    IpfsDataRoot string
+    IpfsCmd      string `yaml:"ipfsCmd"`
+    IpfsDataRoot string `yaml:"ipfsDataRoot"`
 }
 
 type IpfsDaemon struct {
