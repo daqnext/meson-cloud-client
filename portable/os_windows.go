@@ -33,7 +33,7 @@ func CmdKill(cmd *exec.Cmd) error {
     return nil
 }
 
-func SysSingalFunc(exitFunc func(os.Signal)) {
+func SysSignalFunc(exitFunc func(os.Signal)) {
     c := make(chan os.Signal)
 
     signal.Notify(c, syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)

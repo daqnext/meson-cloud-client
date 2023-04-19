@@ -79,7 +79,7 @@ func main() {
             logger.L.Debugln("Program Exit...", s)
             mainCancel()
         }
-        portable.SysSingalFunc(GracefulExit)
+        portable.SysSignalFunc(GracefulExit)
 
         // Api Jobs
         apiMgr := api.NewApiMgr(queryUrl, token, ipfsDaemon)
