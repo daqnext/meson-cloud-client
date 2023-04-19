@@ -1,12 +1,12 @@
 package main
 
 import (
-	"daqnext/meson-cloud-client/daemon"
-	"io/ioutil"
-	"log"
+    "daqnext/meson-cloud-client/daemon"
+    "io/ioutil"
+    "log"
 
-	"github.com/spf13/viper"
-	yaml "gopkg.in/yaml.v2"
+    "github.com/spf13/viper"
+    yaml "gopkg.in/yaml.v2"
 )
 
 type AppCfg struct {
@@ -43,11 +43,6 @@ func loadConfig(extPath string) *AppConfig {
         log.Panicln("Unable to decode into struct", err.Error())
     }
 
-    //  var ipfsCfg daemon.IpfsCfg
-    //  if err := viper.UnmarshalKey("ipfs", &ipfsCfg); err != nil {
-    //      logger.L.Panicw("Failed to read ipfs confg", "err", err.Error())
-    //  }
-
     return &AppConfig{
         v: v,
         usedFile: usedFile,
@@ -57,13 +52,13 @@ func loadConfig(extPath string) *AppConfig {
 
 func (c *AppConfig) updateConfig() {
 
-	d, err := yaml.Marshal(c.cfg)
-	if err != nil {
-		log.Fatalf("error: %v", err)
-	}
+    d, err := yaml.Marshal(c.cfg)
+    if err != nil {
+        log.Fatalf("error: %v", err)
+    }
 
-	err = ioutil.WriteFile(c.usedFile, d, 0644)
-	if err != nil {
-		log.Fatal(err)
-	}
+    err = ioutil.WriteFile(c.usedFile, d, 0644)
+    if err != nil {
+        log.Fatal(err)
+    }
 }

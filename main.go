@@ -89,8 +89,8 @@ func main() {
     }
 
     // config app to run
-	errRun := ConfigCmd(defaultAction).Run(os.Args)
-	if errRun != nil {
-		panic(errRun)
-	}
+    errRun := ConfigCmd(defaultAction).Run(os.Args)
+    if errRun != nil {
+        panic(errRun)
+    }
 }

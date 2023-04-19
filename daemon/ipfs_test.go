@@ -1,11 +1,11 @@
 package daemon
 
 import (
-	"encoding/json"
-	"fmt"
-	"testing"
+    "encoding/json"
+    "fmt"
+    "testing"
 
-	"github.com/stretchr/testify/assert"
+    "github.com/stretchr/testify/assert"
 )
 
 func TestIpfsDaemon_ReadConfig(t *testing.T) {
