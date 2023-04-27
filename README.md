@@ -79,5 +79,8 @@ After running the command, you can click on the `Upload to Local` button or open
 http://127.0.0.1:5001/webui/
 ```
 
+### Develope
+- [Dev Reference](DEVELOPE.md)
+
 ## License
 - Apache License, Version 2.0, [LICENSE-APACHE](http://www.apache.org/licenses/LICENSE-2.0)
